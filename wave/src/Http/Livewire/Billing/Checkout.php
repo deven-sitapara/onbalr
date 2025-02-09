@@ -31,7 +31,7 @@ class Checkout extends Component
         $this->paddle_url = (config('wave.paddle.env') == 'sandbox') ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com';
         $this->updateCycleBasedOnPlans();
 
-        if($this->change){
+        if ($this->change) {
             // if we are changing the user plan as opposecd to checking out the first time.
             $this->userSubscription = auth()->user()->subscription;
             $this->userPlan = auth()->user()->subscription->plan;
@@ -55,6 +55,8 @@ class Checkout extends Component
                 'plan_id' => $plan->id,
                 'billing_cycle' => $this->billing_cycle_selected
             ],
+            'billing_address_collection' => 'required', // Add this to collect address
+            'customer_email' => auth()->user()->email, // Pre-fill email
             'mode' => 'subscription',
             'success_url' => url('subscription/welcome'),
             'cancel_url' => url('settings/subscription'),
@@ -87,26 +89,28 @@ class Checkout extends Component
     }
 
     #[On('savePaddleSubscription')]
-    public function savePaddleSubscription($transactionId){
+    public function savePaddleSubscription($transactionId)
+    {
         $subscription = app(AddSubscriptionIdFromTransaction::class)($transactionId);
-        if(!is_null($subscription)){
+        if (!is_null($subscription)) {
             return redirect('/subscription/welcome');
         }
-       
+
         $this->js('closeLoader()');
         Notification::make()
             ->title('Unable to obtain subscription information from payment provider.')
             ->danger()
-            ->send(); 
+            ->send();
     }
-    
-    #[On('verifyPaddleTransaction')] 
-    public function verifyPaddleTransaction($transactionId){
+
+    #[On('verifyPaddleTransaction')]
+    public function verifyPaddleTransaction($transactionId)
+    {
 
         $transaction = null;
 
-        $response = Http::withToken( config('wave.paddle.api_key') )->get($this->paddle_url . '/transactions/' . $transactionId);
-        
+        $response = Http::withToken(config('wave.paddle.api_key'))->get($this->paddle_url . '/transactions/' . $transactionId);
+
         if ($response->successful()) {
             $resBody = json_decode($response->body());
             if (isset($resBody->data->status) && ($resBody->data->status == 'paid' || $resBody->data->status == 'completed' || $resBody->data->status == 'ready')) {
@@ -119,13 +123,13 @@ class Checkout extends Component
 
             $user = auth()->user();
 
-            if($this->billing_cycle_selected == 'month'){
+            if ($this->billing_cycle_selected == 'month') {
                 $plan = Plan::where('monthly_price_id', $transaction->items[0]->price->id)->first();
             } else {
-                $plan = Plan::where('yearly_price_id', $transaction->items[0]->price->id)->first(); 
+                $plan = Plan::where('yearly_price_id', $transaction->items[0]->price->id)->first();
             }
 
-            if(!isset($plan->id)){
+            if (!isset($plan->id)) {
                 $this->js('Paddle.Checkout.close()');
                 Notification::make()
                     ->title('Plan Price ID not found. Something went wrong during the checkout process')
@@ -142,7 +146,7 @@ class Checkout extends Component
                 'billable_id' => auth()->user()->id,
                 'plan_id' => $plan->id,
                 'vendor_slug' => 'paddle',
-                'vendor_transaction_id' => $transactionId, 
+                'vendor_transaction_id' => $transactionId,
                 'vendor_customer_id' => $transaction->customer_id,
                 'vendor_subscription_id' => $transaction->subscription_id,
                 'cycle' => $this->billing_cycle_selected,
@@ -151,7 +155,6 @@ class Checkout extends Component
             ]);
 
             $this->js('savePaddleSubscription("' . $transactionId . '")');
-           
         } else {
             $this->js('Paddle.Checkout.close()');
             Notification::make()
@@ -160,16 +163,17 @@ class Checkout extends Component
                 ->send();
         }
 
-            // if we got here something went wrong and we need to let the user know.
-         
+        // if we got here something went wrong and we need to let the user know.
+
     }
 
-    public function switchPlan(Plan $plan){
+    public function switchPlan(Plan $plan)
+    {
         $subscription = auth()->user()->subscription;
 
-        $price_id = ($this->billing_cycle_selected == 'month') ? $plan->monthly_price_id : $plan->yearly_price_id ?? null; 
+        $price_id = ($this->billing_cycle_selected == 'month') ? $plan->monthly_price_id : $plan->yearly_price_id ?? null;
 
-        $response = Http::withToken( config('wave.paddle.api_key') )->patch(
+        $response = Http::withToken(config('wave.paddle.api_key'))->patch(
             $this->paddle_url . '/subscriptions/' . $subscription->vendor_subscription_id,
             [
                 'items' => [
@@ -191,7 +195,7 @@ class Checkout extends Component
         }
     }
 
-    
+
     public function render()
     {
         return view('wave::livewire.billing.checkout', [
