@@ -45,4 +45,16 @@
 
 @filamentStyles
 @livewireStyles
-@vite(['resources/themes/anchor/assets/css/app.css', 'resources/themes/anchor/assets/js/app.js'])
+@vite(['resources/themes/anchor/assets/css/app.css',
+'resources/themes/anchor/assets/js/grapesjs-init.js', // for website builder
+'resources/themes/anchor/assets/js/app.js'
+])
+
+<link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+<script src="https://unpkg.com/grapesjs"></script>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+  }
+</style>
