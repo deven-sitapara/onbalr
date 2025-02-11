@@ -16,5 +16,10 @@
     "postcss-nesting": "^12.1.1",
     "tailwindcss": "^3.4.3",
     "vite": "^5.4"
+  },
+  "dependencies": {
+    "grapesjs": "^0.22.5",
+    "grapesjs-blocks-basic": "^1.0.2",
+    "grapesjs-preset-webpage": "^1.0.3"
   }
 }
