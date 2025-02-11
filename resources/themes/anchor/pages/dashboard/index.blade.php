@@ -53,6 +53,11 @@ name('dashboard');
                 </p>
             @endsubscriber
 
+            @role('subscriber')
+                @livewire('subscriber.todo-list')
+            @endrole
+
+
             @admin
                 <x-app.message-for-admin />
             @endadmin
