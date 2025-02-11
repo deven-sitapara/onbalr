@@ -13,8 +13,13 @@ class Program extends Model
         'details',
         'price',
         'currency',
-        'is_active'
+        'is_active',
     ];
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
 
     public function registrations()
     {

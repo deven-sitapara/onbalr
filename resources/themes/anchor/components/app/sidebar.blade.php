@@ -59,9 +59,10 @@
                         :active="Request::is('settings/subscription')">Select a
                         Plan</x-app.sidebar-link>
 
-                    <x-app.sidebar-link
-                    href="{{ route('website') }}"
-                         icon="phosphor-cube" :active="Request::is('website')">Website</x-app.sidebar-link>
+                    <x-app.sidebar-link href="{{ route('website') }}" icon="phosphor-cube"
+                        :active="Request::is('website')">Website</x-app.sidebar-link>
+                    <x-app.sidebar-link href="{{ route('programs') }}" icon="phosphor-cube"
+                        :active="Request::is('programs')">Programs</x-app.sidebar-link>
                     <x-app.sidebar-link
                         onclick="event.preventDefault(); new FilamentNotification().title('To be done').send()"
                         icon="phosphor-cube" :active="Request::is('plans')">Contact Manager</x-app.sidebar-link>

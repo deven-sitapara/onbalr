@@ -12,7 +12,7 @@ class Registration extends Model
         'last_name',
         'email',
         'mobile_number',
-        'registration_type'
+        'registration_type',
     ];
 
     public function program()
